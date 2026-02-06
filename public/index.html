@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Verification - AI Identity Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 20s ease infinite;
+            min-height: 100vh;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        .card-glass {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(30px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .spinner {
+            border: 4px solid rgba(102, 126, 234, 0.2);
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-up {
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .scale-in {
+            animation: scaleIn 0.5s ease-out;
+        }
+
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .upload-zone {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-zone::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .upload-zone:hover::before {
+            left: 100%;
+        }
+
+        .upload-zone:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(102, 126, 234, 0.4);
+            border-color: #667eea;
+        }
+
+        .upload-zone.drag-over {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+            transform: scale(1.05);
+        }
+
+        .btn-glow {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-glow::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-glow:hover::before {
+            width: 400px;
+            height: 400px;
+        }
+
+        .btn-glow:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-glow:active {
+            transform: translateY(-1px);
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.8) 100%);
+            backdrop-filter: blur(15px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+
+        .pulse-glow {
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { 
+                box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+            }
+            50% { 
+                box-shadow: 0 0 40px rgba(102, 126, 234, 0.8);
+            }
+        }
+
+        .icon-float {
+            animation: iconFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes iconFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .result-success {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
+            border: 2px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .result-error {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
+            border: 2px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring-circle {
+            transition: stroke-dashoffset 1s ease-in-out;
+        }
+
+        .shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #ffffff 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .badge-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .badge-error {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-12 fade-in">
+            <div class="inline-block mb-6 floating">
+                <div class="glass-morphism rounded-full p-6 pulse-glow">
+                    <i class="fas fa-user-shield text-6xl text-white"></i>
+                </div>
+            </div>
+            <h1 class="text-7xl font-black text-white mb-4 drop-shadow-2xl tracking-tight">
+                Face Verification
+            </h1>
+            <p class="text-white/95 text-2xl mb-8 font-semibold">AI-Powered Identity Verification Portal</p>
+            <div class="flex justify-center gap-8 text-white/90 text-base flex-wrap">
+                <div class="flex items-center gap-3 glass-morphism px-6 py-3 rounded-full">
+                    <i class="fas fa-camera text-xl"></i>
+                    <span class="font-medium">Selfie + ID/Passport</span>
+                </div>
+                <div class="flex items-center gap-3 glass-morphism px-6 py-3 rounded-full">
+                    <i class="fas fa-bolt text-xl"></i>
+                    <span class="font-medium">Real-time Processing</span>
+                </div>
+                <div class="flex items-center gap-3 glass-morphism px-6 py-3 rounded-full">
+                    <i class="fas fa-chart-line text-xl"></i>
+                    <span class="font-medium">Detailed Analytics</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Card -->
+        <div class="card-glass rounded-3xl shadow-2xl p-10 md:p-12 mb-8 slide-up">
+            <form id="verificationForm" class="space-y-10">
+                <!-- Selfie Upload Section -->
+                <div>
+                    <label class="block text-xl font-bold text-gray-800 mb-5 flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg">
+                            <i class="fas fa-user-circle text-white text-xl"></i>
+                        </div>
+                        <span>Upload Selfie Photo</span>
+                    </label>
+                    <div id="selfieUploadArea" class="upload-zone border-3 border-dashed border-gray-300 rounded-3xl p-12 text-center cursor-pointer bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+                        <input 
+                            type="file" 
+                            id="selfieInput" 
+                            name="selfie" 
+                            accept="image/*" 
+                            class="hidden"
+                            required
+                        >
+                        <div id="selfiePreview" class="hidden mb-6">
+                            <div class="relative inline-block">
+                                <img id="selfieImage" src="" alt="Selfie Preview" class="max-w-full max-h-80 mx-auto rounded-3xl shadow-2xl object-cover border-4 border-white">
+                                <button 
+                                    type="button" 
+                                    onclick="removeFile('selfie')"
+                                    class="absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white rounded-full p-3 shadow-xl transition-all hover:scale-110 transform"
+                                >
+                                    <i class="fas fa-times text-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="selfiePlaceholder">
+                            <div class="mb-6">
+                                <i class="fas fa-cloud-upload-alt text-7xl text-indigo-400 mb-4 icon-float"></i>
+                            </div>
+                            <button 
+                                type="button" 
+                                onclick="document.getElementById('selfieInput').click()"
+                                class="btn-glow text-white font-bold py-4 px-10 rounded-2xl shadow-xl relative z-10 text-lg"
+                            >
+                                <i class="fas fa-folder-open mr-3"></i>
+                                Choose Selfie Photo
+                            </button>
+                            <p class="text-sm text-gray-600 mt-5 font-medium">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                JPG, PNG, GIF (Max 5MB)
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ID/Passport Upload Section -->
+                <div>
+                    <label class="block text-xl font-bold text-gray-800 mb-5 flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center shadow-lg">
+                            <i class="fas fa-id-card text-white text-xl"></i>
+                        </div>
+                        <span>Upload ID/Passport Photo</span>
+                    </label>
+                    <div id="idDocumentUploadArea" class="upload-zone border-3 border-dashed border-gray-300 rounded-3xl p-12 text-center cursor-pointer bg-gradient-to-br from-purple-50 via-pink-50 to-rose-50">
+                        <input 
+                            type="file" 
+                            id="idDocumentInput" 
+                            name="idDocument" 
+                            accept="image/*" 
+                            class="hidden"
+                            required
+                        >
+                        <div id="idDocumentPreview" class="hidden mb-6">
+                            <div class="relative inline-block">
+                                <img id="idDocumentImage" src="" alt="ID Document Preview" class="max-w-full max-h-80 mx-auto rounded-3xl shadow-2xl object-cover border-4 border-white">
+                                <button 
+                                    type="button" 
+                                    onclick="removeFile('idDocument')"
+                                    class="absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white rounded-full p-3 shadow-xl transition-all hover:scale-110 transform"
+                                >
+                                    <i class="fas fa-times text-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="idDocumentPlaceholder">
+                            <div class="mb-6">
+                                <i class="fas fa-file-upload text-7xl text-purple-400 mb-4 icon-float"></i>
+                            </div>
+                            <button 
+                                type="button" 
+                                onclick="document.getElementById('idDocumentInput').click()"
+                                class="btn-glow text-white font-bold py-4 px-10 rounded-2xl shadow-xl relative z-10 text-lg"
+                            >
+                                <i class="fas fa-folder-open mr-3"></i>
+                                Choose ID/Passport Photo
+                            </button>
+                            <p class="text-sm text-gray-600 mt-5 font-medium">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                JPG, PNG, GIF (Max 5MB)
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Verify Button -->
+                <div class="pt-8">
+                    <button 
+                        type="submit" 
+                        id="verifyButton"
+                        class="w-full btn-glow text-white font-black py-6 px-8 rounded-3xl text-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-2xl relative overflow-hidden"
+                    >
+                        <span id="buttonText" class="relative z-10">
+                            <i class="fas fa-shield-alt mr-3"></i>
+                            Verify Identity
+                        </span>
+                        <div id="loadingSpinner" class="hidden ml-4 relative z-10">
+                            <div class="spinner"></div>
+                        </div>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="hidden mt-12 fade-in">
+                <div class="border-t-3 border-gray-200 pt-10">
+                    <h2 class="text-4xl font-black text-gray-800 mb-10 flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
+                            <i class="fas fa-chart-bar text-white text-2xl"></i>
+                        </div>
+                        <span>Verification Results</span>
+                    </h2>
+                    <div id="resultContent"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div id="errorMessage" class="hidden bg-gradient-to-r from-red-500 to-rose-600 text-white p-8 rounded-3xl shadow-2xl mb-8 border-l-4 border-red-700 slide-up backdrop-blur-md"></div>
+
+        <!-- API Info Card -->
+        <div class="card-glass rounded-3xl shadow-xl p-8">
+            <h3 class="text-2xl font-black text-gray-800 mb-6 flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
+                    <i class="fas fa-info-circle text-white text-xl"></i>
+                </div>
+                <span>API Information</span>
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="flex items-center gap-4 p-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl border-2 border-indigo-100 hover:border-indigo-300 transition-all">
+                    <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
+                        <i class="fas fa-code text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-sm text-gray-600 font-semibold mb-1">Endpoint</div>
+                        <code class="text-base bg-white px-4 py-2 rounded-xl shadow font-mono font-bold">POST /api/verify</code>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 p-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl border-2 border-purple-100 hover:border-purple-300 transition-all">
+                    <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center shadow-lg">
+                        <i class="fas fa-book text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-sm text-gray-600 font-semibold mb-1">Documentation</div>
+                        <a href="/api-docs" target="_blank" class="text-indigo-600 hover:text-indigo-800 font-bold text-lg hover:underline inline-flex items-center gap-2">
+                            <span>Swagger UI</span>
+                            <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selfieFile = null;
+        let idDocumentFile = null;
+
+        // File input handlers
+        document.getElementById('selfieInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) {
+                    showError('Selfie file size exceeds 5MB');
+                    return;
+                }
+                selfieFile = file;
+                displayPreview('selfie', file);
+            }
+        });
+
+        document.getElementById('idDocumentInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) {
+                    showError('ID/Passport file size exceeds 5MB');
+                    return;
+                }
+                idDocumentFile = file;
+                displayPreview('idDocument', file);
+            }
+        });
+
+        // Drag and drop handlers
+        ['selfieUploadArea', 'idDocumentUploadArea'].forEach(id => {
+            const area = document.getElementById(id);
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                area.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                area.addEventListener(eventName, () => area.classList.add('drag-over'), false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                area.addEventListener(eventName, () => area.classList.remove('drag-over'), false);
+            });
+
+            area.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files.length > 0) {
+                    const input = id === 'selfieUploadArea' ? document.getElementById('selfieInput') : document.getElementById('idDocumentInput');
+                    input.files = files;
+                    input.dispatchEvent(new Event('change'));
+                }
+            }, false);
+        });
+
+        // Click handlers for upload areas
+        document.getElementById('selfieUploadArea').addEventListener('click', (e) => {
+            if (e.target.closest('button') || e.target.closest('#selfiePreview')) return;
+            document.getElementById('selfieInput').click();
+        });
+
+        document.getElementById('idDocumentUploadArea').addEventListener('click', (e) => {
+            if (e.target.closest('button') || e.target.closest('#idDocumentPreview')) return;
+            document.getElementById('idDocumentInput').click();
+        });
+
+        function displayPreview(type, file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                if (type === 'selfie') {
+                    document.getElementById('selfiePreview').classList.remove('hidden');
+                    document.getElementById('selfiePlaceholder').classList.add('hidden');
+                    document.getElementById('selfieImage').src = e.target.result;
+                } else {
+                    document.getElementById('idDocumentPreview').classList.remove('hidden');
+                    document.getElementById('idDocumentPlaceholder').classList.add('hidden');
+                    document.getElementById('idDocumentImage').src = e.target.result;
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeFile(type) {
+            if (type === 'selfie') {
+                selfieFile = null;
+                document.getElementById('selfieInput').value = '';
+                document.getElementById('selfiePreview').classList.add('hidden');
+                document.getElementById('selfiePlaceholder').classList.remove('hidden');
+            } else {
+                idDocumentFile = null;
+                document.getElementById('idDocumentInput').value = '';
+                document.getElementById('idDocumentPreview').classList.add('hidden');
+                document.getElementById('idDocumentPlaceholder').classList.remove('hidden');
+            }
+        }
+
+        // Form submission
+        document.getElementById('verificationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            document.getElementById('errorMessage').classList.add('hidden');
+            document.getElementById('resultsSection').classList.add('hidden');
+
+            if (!selfieFile || !idDocumentFile) {
+                showError('Please upload both Selfie and ID/Passport photos');
+                return;
+            }
+
+            const verifyButton = document.getElementById('verifyButton');
+            const buttonText = document.getElementById('buttonText');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            
+            verifyButton.disabled = true;
+            buttonText.innerHTML = '<i class="fas fa-spinner fa-spin mr-3"></i>Processing...';
+            loadingSpinner.classList.remove('hidden');
+
+            try {
+                const formData = new FormData();
+                formData.append('selfie', selfieFile);
+                formData.append('idDocument', idDocumentFile);
+
+                const response = await fetch('/api/verify', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const contentType = response.headers.get('content-type');
+                let data;
+                
+                if (contentType && contentType.includes('application/json')) {
+                    try {
+                        data = await response.json();
+                    } catch (jsonError) {
+                        console.error('JSON parse error:', jsonError);
+                        const text = await response.text();
+                        console.error('Response text:', text);
+                        throw new Error('Invalid JSON response from server');
+                    }
+                } else {
+                    const text = await response.text();
+                    throw new Error(`Server returned: ${text || 'No response'}`);
+                }
+
+                verifyButton.disabled = false;
+                buttonText.innerHTML = '<i class="fas fa-shield-alt mr-3"></i>Verify Identity';
+                loadingSpinner.classList.add('hidden');
+
+                if (response.ok) {
+                    displayResults(data);
+                } else {
+                    const errorMsg = data.message || data.error || `HTTP ${response.status}: ${response.statusText}`;
+                    showError(errorMsg);
+                    
+                    if (data.similarity !== undefined) {
+                        displayResults(data);
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                verifyButton.disabled = false;
+                buttonText.innerHTML = '<i class="fas fa-shield-alt mr-3"></i>Verify Identity';
+                loadingSpinner.classList.add('hidden');
+                
+                let errorMessage = 'Connection error. ';
+                if (error.message) {
+                    errorMessage += error.message;
+                } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                    errorMessage += 'Cannot connect to server. Please make sure the server is running on http://localhost:3000';
+                } else {
+                    errorMessage += 'Please check your network and try again.';
+                }
+                
+                showError(errorMessage);
+            }
+        });
+
+        function displayResults(data) {
+            const resultsSection = document.getElementById('resultsSection');
+            const resultContent = document.getElementById('resultContent');
+
+            const isSuccess = data.success === true;
+            const resultClass = isSuccess ? 'result-success' : 'result-error';
+            const statusText = isSuccess ? 'text-green-800' : 'text-red-800';
+            const statusIcon = isSuccess ? 'fa-check-circle' : 'fa-times-circle';
+            const statusIconBg = isSuccess ? 'bg-gradient-to-br from-green-400 to-emerald-500' : 'bg-gradient-to-br from-red-400 to-rose-500';
+            const statusBadge = isSuccess ? 'SUCCESS' : 'FAILED';
+            const badgeClass = isSuccess ? 'badge-success' : 'badge-error';
+
+            const similarity = data.similarity || 0;
+            const similarityColor = similarity >= 90 
+                ? 'text-green-600' 
+                : similarity >= 70 
+                    ? 'text-yellow-600' 
+                    : 'text-red-600';
+            
+            const circumference = 2 * Math.PI * 50;
+            const offset = circumference - (similarity / 100) * circumference;
+            const strokeColor = similarity >= 90 ? '#10b981' : similarity >= 70 ? '#f59e0b' : '#ef4444';
+
+            resultContent.innerHTML = `
+                <div class="${resultClass} ${statusText} rounded-3xl p-10 scale-in">
+                    <div class="flex flex-col md:flex-row items-center md:items-start gap-8 mb-10">
+                        <div class="flex-shrink-0">
+                            <div class="w-32 h-32 rounded-full ${statusIconBg} flex items-center justify-center shadow-2xl pulse-glow">
+                                <i class="fas ${statusIcon} text-white text-6xl"></i>
+                            </div>
+                        </div>
+                        <div class="flex-1 text-center md:text-left">
+                            <h3 class="text-4xl font-black mb-3">${data.message || 'Verification Result'}</h3>
+                            <p class="text-gray-600 flex items-center justify-center md:justify-start gap-2 text-lg">
+                                <i class="fas fa-clock"></i>
+                                ${data.date ? new Date(data.date).toLocaleString() : ''}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="stat-card rounded-2xl p-8 text-center">
+                            <div class="text-sm text-gray-600 mb-4 font-bold uppercase tracking-wide">Similarity Score</div>
+                            <div class="relative inline-block mb-4">
+                                <svg class="progress-ring w-32 h-32">
+                                    <circle cx="64" cy="64" r="50" fill="none" stroke="#e5e7eb" stroke-width="10"/>
+                                    <circle class="progress-ring-circle" cx="64" cy="64" r="50" fill="none" 
+                                        stroke="${strokeColor}" stroke-width="10" stroke-linecap="round"
+                                        stroke-dasharray="${circumference}" 
+                                        stroke-dashoffset="${offset}"
+                                    />
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="text-4xl font-black ${similarityColor}">${similarity}%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stat-card rounded-2xl p-8 text-center">
+                            <div class="text-sm text-gray-600 mb-4 font-bold uppercase tracking-wide">Status</div>
+                            <span class="inline-block px-8 py-4 rounded-full ${badgeClass} text-white font-black text-lg shadow-xl">
+                                ${statusBadge}
+                            </span>
+                        </div>
+                        <div class="stat-card rounded-2xl p-8 text-center">
+                            <div class="text-sm text-gray-600 mb-4 font-bold uppercase tracking-wide">Face Matches</div>
+                            <div class="text-5xl font-black text-gray-800">${data.faceMatches || 0}</div>
+                        </div>
+                        <div class="stat-card rounded-2xl p-8 text-center">
+                            <div class="text-sm text-gray-600 mb-4 font-bold uppercase tracking-wide">Response Code</div>
+                            <code class="text-sm bg-gray-100 px-4 py-3 rounded-xl font-mono font-bold border-2 border-gray-200">${data.code || 'N/A'}</code>
+                        </div>
+                    </div>
+
+                    ${data.warning ? `
+                        <div class="mt-8 p-6 bg-yellow-50 border-2 border-yellow-300 rounded-2xl text-yellow-900 flex items-start gap-4">
+                            <i class="fas fa-exclamation-triangle text-2xl mt-1"></i>
+                            <div>
+                                <strong class="block mb-2 text-lg">Warning:</strong>
+                                <p>${data.warning}</p>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${data.similarity < 90 && data.similarity > 0 ? `
+                        <div class="mt-8 p-6 bg-blue-50 border-2 border-blue-300 rounded-2xl text-blue-900 flex items-start gap-4">
+                            <i class="fas fa-info-circle text-2xl mt-1"></i>
+                            <div>
+                                <strong class="block mb-2 text-lg">Note:</strong>
+                                <p>Similarity score below 90% threshold. Verification failed.</p>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${data.details ? `
+                        <div class="mt-8 p-6 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-800">
+                            <strong class="block mb-3 text-lg">Details:</strong>
+                            <p>${data.details}</p>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            resultsSection.classList.remove('hidden');
+            setTimeout(() => {
+                resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.innerHTML = `
+                <div class="flex items-start gap-4">
+                    <i class="fas fa-exclamation-circle text-3xl flex-shrink-0"></i>
+                    <div>
+                        <strong class="block mb-2 text-xl">Error:</strong>
+                        <p class="text-lg">${message}</p>
+                    </div>
+                </div>
+            `;
+            errorDiv.classList.remove('hidden');
+            setTimeout(() => {
+                errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        }
+
+        // Check server connection on page load
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch('/health');
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ Server is running:', data);
+                } else {
+                    console.warn('⚠️ Server health check failed');
+                }
+            } catch (error) {
+                console.error('❌ Server connection check failed:', error);
+                const errorDiv = document.getElementById('errorMessage');
+                errorDiv.innerHTML = `
+                    <div class="flex items-start gap-4">
+                        <i class="fas fa-exclamation-triangle text-3xl flex-shrink-0"></i>
+                        <div>
+                            <strong class="block mb-3 text-xl">Warning: Cannot connect to server.</strong>
+                            <div class="text-base mt-3 space-y-2">
+                                <div><i class="fas fa-check-circle mr-2"></i>Server is running: <code class="bg-white/20 px-2 py-1 rounded">npm run dev</code></div>
+                                <div><i class="fas fa-check-circle mr-2"></i>Server URL: <code class="bg-white/20 px-2 py-1 rounded">http://localhost:3000</code></div>
+                                <div><i class="fas fa-check-circle mr-2"></i>Check browser console (F12) for more details</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                errorDiv.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
