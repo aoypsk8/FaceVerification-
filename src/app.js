@@ -8,6 +8,7 @@ import { PORT, SWAGGER_CONFIG } from './config/index.js';
 import { verifyRoute } from './routes/verify.js';
 import { healthRoute } from './routes/health.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import { requestLogger } from './middleware/requestLogger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -18,6 +19,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.static(join(__dirname, '../public')));
+
+// Request logging middleware (should be early in the chain)
+app.use(requestLogger);
 
 // Swagger
 const swaggerSpec = swaggerJsdoc(SWAGGER_CONFIG);
